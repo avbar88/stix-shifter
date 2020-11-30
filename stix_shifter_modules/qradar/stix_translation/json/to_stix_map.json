@@ -78,7 +78,7 @@
       "references": "host"
     }
   ],
-  "identityhostname": [
+  "Machine ID": [
     {
       "key": "x-qradar.identity_host_name",
       "object": "x-qradar"
@@ -626,5 +626,15 @@
   "ServiceFileName": {
     "key": "process.extensions.windows-service-ext.service_dll_refs[*].name",
     "object": "process"
+  },
+  "Target Object" : {
+    "key": "x-ibm-event.windows-registry-key",
+    "transformer" : "QRadarRegistryTransformer",
+    "object": "windows-registry-key"
+  },
+  "Target Details": {
+    "key": "x-ibm-event.values",
+    "object": "windows-registry-key"
   }
 }
+

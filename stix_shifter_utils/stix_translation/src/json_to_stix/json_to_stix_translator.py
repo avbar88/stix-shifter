@@ -141,16 +141,17 @@ class DataSourceObjToStixObj:
             if obj_name is not None:
                 obj_name_map[obj_name] = obj_dir_key
 
-        
+
+        # What is it used for?
         child_obj = obj
-        parent_props = split_key[0:-1]
+        parent_props = split_key[1:-1]
         for prop in parent_props:
             if prop not in child_obj:
                 child_obj[prop] = {}
             child_obj = child_obj[prop]
 
-        
-        child_obj[split_key[-1]] = obj
+
+        obj[split_key[-1]] = stix_value
         #TODO: add support for group
         #elif group is True:  # Mapping of multiple data fields to single STIX object field. Ex: Network Protocols
         #    if (isinstance(child_obj[split_key[-1]], list)):
@@ -219,7 +220,7 @@ class DataSourceObjToStixObj:
             
 
         if isinstance(to_map, dict):
-            if ds_key_def_obj['transformer'] is not None:
+            if ds_key_def_obj.get('transformer') is not None:
                 #if object is a dictionary, but a transformer was defined - pass the whole complex object to the transformer
                 transformer = self.transformers[ds_key_def_obj['transformer']]
                 object_name = ds_key_def_obj.get('object')

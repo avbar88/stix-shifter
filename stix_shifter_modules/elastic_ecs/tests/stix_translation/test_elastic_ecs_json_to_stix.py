@@ -79,7 +79,90 @@ data = {
             "resolved_ip": [
                 "40.116.120.16", "1.2.3.4"
             ]
-          }
+          },
+        "registry": {
+            "path": "HKLM\\SOFTWARE\\Microsoft\\Windows Portable Devices\\Devices\\USB#VID_05AC&PID_12A8&MI_00#6&5A0AFCC&0&0000\\FriendlyName",
+            "hive": "HKLM",
+            "key": "SOFTWARE\\Microsoft\\Windows Portable Devices\\Devices\\USB#VID_05AC&PID_12A8&MI_00#6&5A0AFCC&0&0000\\FriendlyName",
+            "value": "FriendlyName"
+        }
+}
+data_complex_registry = {
+          "@timestamp": "2019-04-21T11:05:07.000Z",
+          "event": {
+            "action": "get",
+            "dataset": "apache.access",
+            "original": "10.42.42.42 - - [07/Dec/2018:11:05:07 +0100] \"GET /blog HTTP/1.1\" 200 2571 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36\""
+          },
+          "process": {
+            "args": [
+              "/System/Library/CoreServices/SubmitDiagInfo",
+              "server-init"
+            ],
+            "pid": 609,
+            "ppid": 1,
+            "working_directory": "/",
+            "executable": "/System/Library/CoreServices/SubmitDiagInfo",
+            "start": "2019-04-10T11:33:57.571Z",
+            "entity_id": "I2bdm9mEE1xzKvc0",
+            "name": "SubmitDiagInfo"
+          },
+          "message": "\"GET /blog HTTP/1.1\" 200 2571",
+          "service": {
+            "name": "Company blog",
+            "type": "apache"
+          },
+          "source": {
+            "mac": "00:01:a7:a5:b2:b1",
+            "ip": "107.0.0.48",
+            "port": 49745,
+            "bytes": 217,
+            "packets": 3
+          },
+          "destination": {
+            "mac": "00:9a:4c:83:dc:f1",
+            "ip": "100.101.0.69",
+            "port": 443,
+            "packets": 11,
+            "bytes": 943
+          },
+          "network": {
+            "type": "ipv4",
+            "transport": "tcp",
+            "community_id": "1:kL4GhKYBNaX4O45xnu+pPYEmq70=",
+            "bytes": 4488,
+            "packets": 14
+          },
+          "url": {
+            "original": "/blog"
+          },
+          "user": {
+            "name": "-"
+          },
+          "file": {
+              "name": "example.png",
+              "directory": "/home/alice"
+          },
+          "dns": {
+            "question": {
+                "name": "officehomeblobs.blob.core.windows.net",
+            },
+            "resolved_ip": [
+                "40.116.120.16", "1.2.3.4"
+            ]
+          },
+    "registry": {
+        "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Policy Manager\\SubmitSamplesConsent",
+        "hive": "HKLM",
+        "key": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Policy Manager\\SubmitSamplesConsent",
+        "value": "SubmitSamplesConsent",
+        "data": {
+            "strings": [
+                "2"
+            ],
+            "type": "SZ_DWORD"
+        }
+    }
 }
 
 event_data = {
@@ -340,8 +423,8 @@ class TestElasticEcsTransform(unittest.TestCase, object):
         assert ('objects' in observed_data)
         objects = observed_data['objects']
 
-        with open("/data/test_ecs.json", "w") as fp:
-            json.dump(objects, fp)
+        # with open("data/test_ecs.json", "w") as fp:
+        #     json.dump(objects, fp)
 
         event_object = TestElasticEcsTransform.get_first_of_type(objects.values(), 'x-ibm-event')
         assert (event_object is not None), 'x-ibm-event object type not found'
@@ -448,6 +531,46 @@ class TestElasticEcsTransform(unittest.TestCase, object):
         assert (url_object['type'] == 'url')
         assert (url_object['value'] == '/blog')
 
+    def test_registry(self):
+        result_bundle = json_to_stix_translator.convert_to_stix(
+            data_source, map_data, [data], get_module_transformers(MODULE), options)
+        assert (result_bundle['type'] == 'bundle')
+
+        result_bundle_objects = result_bundle['objects']
+        observed_data = result_bundle_objects[1]
+
+        assert ('objects' in observed_data)
+        objects = observed_data['objects']
+
+        ibm_event = TestElasticEcsTransform.get_first(objects.values(), lambda o: type(o) == dict and o.get('type') == 'x-ibm-event')
+        assert ibm_event is not None, "Must have IBM event"
+        registry = ibm_event['windows-registry-key']
+        assert registry is not None, "Must have windows-registry-key"
+        assert registry["key"] == 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Portable Devices\\Devices\\USB#VID_05AC&PID_12A8&MI_00#6&5A0AFCC&0&0000'
+        assert registry["values"] == []
+
+    def test_registry_complex(self):
+        result_bundle = json_to_stix_translator.convert_to_stix(
+            data_source, map_data, [data_complex_registry], get_module_transformers(MODULE), options)
+        assert (result_bundle['type'] == 'bundle')
+
+        result_bundle_objects = result_bundle['objects']
+        observed_data = result_bundle_objects[1]
+
+        assert ('objects' in observed_data)
+        objects = observed_data['objects']
+
+        ibm_event = TestElasticEcsTransform.get_first(objects.values(), lambda o: type(o) == dict and o.get('type') == 'x-ibm-event')
+        assert ibm_event is not None, "Must have IBM event"
+        registry = ibm_event['windows-registry-key']
+        assert registry is not None, "Must have windows-registry-key"
+        assert registry["key"] == 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Policy Manager'
+        registry_values = registry["values"]
+        assert len(registry_values) == 1
+        assert registry_values[0]["name"] == "SubmitSamplesConsent"
+        assert registry_values[0]["data"] == "2"
+        assert registry_values[0]["data_type"] == "SZ_DWORD"
+
     def test_file_prop(self):
         result_bundle = json_to_stix_translator.convert_to_stix(
             data_source, map_data, [data], get_module_transformers(MODULE), options)
@@ -494,4 +617,4 @@ class TestElasticEcsTransform(unittest.TestCase, object):
         assert('objects' in observed_data)
         objects = observed_data['objects']
         assert(objects == {})
-    
+
