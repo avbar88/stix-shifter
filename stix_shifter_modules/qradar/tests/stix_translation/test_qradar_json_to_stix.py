@@ -723,8 +723,9 @@ class TestTransform(unittest.TestCase, object):
     def test_registry(self):
         data_source_string = json.dumps(DATA_SOURCE)
         qradar_event = [{
-            "Target Object": "HKLM\\System\\CurrentControlSet\\Control\\Winlogon\\Notifications\\Components\\TrustedInstaller\\Events",
-            "Target Details": "CreateSession",
+            "Registry Key": "HKLM\System\CurrentControlSet\Services\dmwappushservice",
+            "Registry Value Name": "Start",
+            "Registry Value Data": "DWORD (0x00000002)",
             "Machine ID": "ALONFREUND-1865SDE",
             "starttime": 1603706172453,
             "protocolid": 255,
@@ -753,4 +754,14 @@ class TestTransform(unittest.TestCase, object):
         assert ('objects' in observed_data)
         objects = observed_data['objects']
 
-        objects
+        ibm_event = TestTransform.get_first(objects.values(), lambda o: type(o) == dict and o.get('type') == 'x-ibm-event')
+        assert ibm_event is not None, "Must have IBM event"
+        registry = ibm_event['windows-registry-key']
+        assert registry is not None, "Must have windows-registry-key"
+
+        assert registry["key"] == 'HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\dmwappushservice'
+        registry_values = registry["values"]
+        # FIXME: should be an array...
+        #  assert len(registry_values) == 1
+        assert registry_values["name"] == "Start"
+        assert registry_values["data"] == "DWORD (0x00000002)"

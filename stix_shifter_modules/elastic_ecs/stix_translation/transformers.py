@@ -5,7 +5,7 @@ LOGGER = logger.set_logger(__name__)
 
 
 class EcsRegistryTransformer(ValueTransformer):
-    """A value transformer to convert Arcsight Registry root key to windows-registry-key STIX"""
+    """A value transformer to convert Registry root key to windows-registry-key STIX"""
 
     @staticmethod
     def transform(registry):
@@ -26,7 +26,7 @@ class EcsRegistryTransformer(ValueTransformer):
                     })
             return d
         except ValueError:
-            LOGGER.error("Cannot convert root key to Stix formatted windows registry key")
+            LOGGER.error("Cannot convert root key to STIX formatted windows registry key")
 
     @staticmethod
     def get_reg_key_and_val(registry):

@@ -136,8 +136,8 @@
     },
     {
       "key": "x-ibm-finding.dst_ip_ref",
-      "object": "finding", 
-      "references": "dst_ip" 
+      "object": "finding",
+      "references": "dst_ip"
     }
   ],
   "destinationv6": [
@@ -242,8 +242,8 @@
     },
     {
       "key": "x-ibm-finding.src_ip_ref",
-      "object": "finding", 
-      "references": "src_ip" 
+      "object": "finding",
+      "references": "src_ip"
     },
     {
       "key": "x-ibm-host.ip",
@@ -269,17 +269,23 @@
     {
       "key": "ipv4-addr.resolves_to_refs",
       "object": "src_ip",
-      "references": ["src_mac"]
+      "references": [
+        "src_mac"
+      ]
     },
     {
       "key": "ipv6-addr.resolves_to_refs",
       "object": "src_ip",
-      "references": ["src_mac"]
+      "references": [
+        "src_mac"
+      ]
     },
     {
       "key": "x-ibm-host.mac_refs",
       "object": "host",
-      "references": ["src_mac"]
+      "references": [
+        "src_mac"
+      ]
     }
   ],
   "destinationmac": [
@@ -290,12 +296,16 @@
     {
       "key": "ipv4-addr.resolves_to_refs",
       "object": "dst_ip",
-      "references": ["dst_mac"]
+      "references": [
+        "dst_mac"
+      ]
     },
     {
       "key": "ipv6-addr.resolves_to_refs",
       "object": "dst_ip",
-      "references": ["dst_mac"]
+      "references": [
+        "dst_mac"
+      ]
     }
   ],
   "qid": {
@@ -459,8 +469,7 @@
       "key": "x-qradar.flow_source",
       "object": "x-qradar"
     }
-  ]
-  ,
+  ],
   "flowinterface": {
     "key": "x-qradar.flow_interface",
     "object": "x-qradar"
@@ -622,19 +631,27 @@
       "object": "event",
       "references": "parent_process_image"
     }
-  ],  
+  ],
   "ServiceFileName": {
     "key": "process.extensions.windows-service-ext.service_dll_refs[*].name",
     "object": "process"
   },
-  "Target Object" : {
-    "key": "x-ibm-event.windows-registry-key",
-    "transformer" : "QRadarRegistryTransformer",
-    "object": "windows-registry-key"
+  "Registry Key": {
+    "key": "x-ibm-event.windows-registry-key.key",
+    "object": "registry",
+    "transformer": "QRadarRegistryTransformer"
   },
-  "Target Details": {
-    "key": "x-ibm-event.values",
-    "object": "windows-registry-key"
-  }
+  "Registry Value Name": [
+    {
+      "key": "x-ibm-event.windows-registry-key.values.name",
+      "object": "registry"
+    }
+  ],
+  "Registry Value Data": [
+    {
+      "key": "x-ibm-event.windows-registry-key.values.data",
+      "object": "registry"
+    }
+  ]
 }
 

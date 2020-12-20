@@ -5,7 +5,7 @@ LOGGER = logger.set_logger(__name__)
 
 
 class QRadarRegistryTransformer(ValueTransformer):
-    """A value transformer to convert Arcsight Registry root key to windows-registry-key STIX"""
+    """A value transformer to convert Registry root key to windows-registry-key STIX"""
 
     @staticmethod
     def transform(registry):
@@ -17,21 +17,7 @@ class QRadarRegistryTransformer(ValueTransformer):
             splited = registry.split("\\")
             map_root_key = stix_root_keys_mapping[splited[0]]
             splited[0] = map_root_key
-            # value = splited[-1]
-            splited = splited[:-1]
             key = '\\'.join(splited)
-            # d = {
-            #     "type": "windows-registry-key",
-            #     "key": key,
-            #     "values": []
-            # }
-            # if registry['data'] is not None:
-            #     for rd in registry['data']['strings']:
-            #         d['values'].append({
-            #                 "name": value,
-            #                 "data": rd,
-            #                 "data_type": registry['data']['type']
-            #             })
             return key
         except ValueError:
             LOGGER.error("Cannot convert root key to Stix formatted windows registry key")
