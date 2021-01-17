@@ -121,7 +121,7 @@
       "parent_process_ref.binary_ref.name": ["ParentImage"],
       "domain_ref.value": ["domainname", "UrlHost"],
       "file_ref.name": ["filename"],
-      "host_ref.hostname": ["identityhostname"],
+      "host_ref.hostname": ["identityhostname", "MachineId"],
       "host_ref.ip_refs[*].value": ["identityip"],
       "registry_ref.key": ["ObjectName", "RegistryKey"],
       "user_ref.user_id": ["username"],
@@ -131,7 +131,7 @@
   },
   "x-oca-asset": {
     "fields": {
-      "hostname": ["identityhostname"],
+      "hostname": ["identityhostname", "MachineId"],
       "ip_refs[*].value": ["identityip", "sourceip"],
       "mac_refs[*].value": ["sourcemac"]
     }
